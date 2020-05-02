@@ -1,0 +1,6 @@
+1)Replace String
+update tablename
+set columnname = replace(columnname, 'oldstring', 'newstring')
+
+2)Update using concat
+update tablename set columnname=concat('string', columnname );
