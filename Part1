@@ -3,4 +3,12 @@ update tablename
 set columnname = replace(columnname, 'oldstring', 'newstring')
 
 2)Update using concat
-update tablename set columnname=concat('string', columnname );
+update tablename set columnname=concat('string', columnname);
+
+3)To group list of database with quote
+SELECT GROUP_CONCAT( QUOTE( schema_name ) ) 
+FROM information_schema.schemata
+WHERE schema_name LIKE '%dbname'
+AND schema_name != 'dbname'
+
+
