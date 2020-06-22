@@ -1,14 +1,254 @@
-1)Replace String
+//Replace String
 update tablename
-set columnname = replace(columnname, 'oldstring', 'newstring')
+set field = replace(field, 'oldstring', 'newstring')
 
-2)Update using concat
-update tablename set columnname=concat('string', columnname);
+Update using concat
+update tablename set field=concat('string', field );
 
-3)To group list of database with quote
+To display list of database
+SELECT schema_name  
+FROM information_schema.schemata
+WHERE schema_name LIKE '%dbname'
+AND schema_name != 'dbname'
+
+To group concat list of database wth quotes
 SELECT GROUP_CONCAT( QUOTE( schema_name ) ) 
 FROM information_schema.schemata
 WHERE schema_name LIKE '%dbname'
 AND schema_name != 'dbname'
 
+To insert values of one table to another table or same table
+insert into table1
+(`fieldname1`, `fieldname2`, `fieldname3`, `fieldname4`,......)
+select fieldname1,fieldname2,fieldname3,fieldname4........  
+from table2
+where condition1
+and condition2
 
+
+//To get distinct records
+select  distinct fieldname
+from tablename
+where condition1
+
+or
+
+select  *
+from tablename
+where condition1
+group by fieldname
+
+
+ To get all records from multiple table
+select fieldname1, fieldname2, fieldname3
+from tablename1
+where condition1
+ 
+union all
+
+select fielname4 as fieldname1, fielname5 as fieldname2, fielname6 as fieldname3
+from tablename2
+where condition1
+
+union all
+
+select fielname7 as fieldname1, fielname8 as fieldname2, fielname9 as fieldname3
+from tablename3
+where condition1
+
+ To get all distinct records from multiple table
+
+select fieldname1, fieldname2, fieldname3
+from tablename1
+where condition1
+ 
+union
+
+select fielname4 as fieldname1, fielname5 as fieldname2, fielname6 as fieldname3
+from tablename2
+where condition1
+
+union
+
+select fielname7 as fieldname1, fielname8 as fieldname2, fielname9 as fieldname3
+from tablename3
+where condition1
+
+//Query for checkin checkout --exact working hrs
+SELECT id,field_date,field_time,sum(diff),SEC_TO_TIME(sum(TIME_TO_SEC(diff)))
+FROM (
+select @a:=@a+1 sno,id,field_date,field_time,
+timediff(field_time,(select field_time from tablename t2
+where t2.id < t1.id and field_date='yyyy-mm-dd' order by t2.id desc limit 1)) as diff
+from tablename t1,(select @a:= 0) as a
+where field_date='yyyy-mm-dd'
+) as t
+where sno % 2 = 0;
+
+
+//Time Difference
+select id, datenew, timestampdiff(minute,datenew,(select datenew from tablename t2 where t2.id < t1.id order by t2.id desc limit 1)) as diff from tablename t1
+
+//Columns having double quote display
+select Replace(field,'\"','&quot;')
+from tablename 
+where condition1
+
+
+//Multiple table update using single query
+UPDATE  `tablename1` SET field = val or 'string' WHERE condition;
+UPDATE  `tablename2` SET field = val or 'string'  WHERE condition;
+UPDATE  `tablename3` SET field = val or 'string' WHERE condition;
+
+
+//Multiple string stored in single column and retrieve value with single quotes
+
+
+Delete records from table2 where value doesn't exist in table2
+delete from tablename2 where columname not in(select field from tablename1)
+
+
+//Update all filedvalue to lowercase
+update tablename set field=lower(field) where condition
+
+//Update all filedvalue to uppercase
+update tablename set field=upper(field) where condition
+
+//add multiple fields for existing table
+ALTER TABLE field
+add field1 varchar(50),
+add field2 varchar(50),
+add field3 varchar(50)
+
+
+//To get Serial No for mysqli query
+SELECT  @a:=@a+1 serial_number, field1,field2,fild3,.... FROM tablename,
+(SELECT @a:= 0) AS a;
+
+//To add ‘0’ at beginnig of string using length of string
+update tablename set field=concat('0', field)
+where length(field) =10
+
+//To order field as per our choice’
+SELECT field
+from tablename
+order by (field='value') DESC
+
+//To order field using group concat as per our choice’
+SELECT group_concat(field order by (field='value') DESC)1
+from tablename
+
+//To check duplicate valee exist in same column 
+SELECT * 
+FROM tablename
+where condition
+group by field
+having COUNT(*) > 1
+
+//only to get unique values not distinct values
+If field1 is primary key in tablename1 and field1 is foreign key in table2
+
+select field1,field2,field3,...
+from tablename1 
+inner join (select referedallpatient.ipno 
+    from tablename2 group by field1 having count(*)=1)     tablename2 on tablename1.field1 = tablename2.field1
+	order by field1";
+
+//To delete records exist before 6 months
+DELETE FROM tablename WHERE fielddatetime < DATE_SUB(NOW(), INTERVAL 6 MONTH);
+
+
+//To get year from field which is stored as month & year(mmyyyy)
+select *  FROM `tablename` where substr(field,3) = 2020
+
+//To check empno exist in which table in all database
+SELECT table_name
+FROM information_schema.columns
+WHERE table_schema
+IN (
+	"databasename1",  "databasename2",  "databasename3",  "databasename4",  "databasename5", ...
+)
+AND table_name =  'tablename'
+AND column_name
+IN (
+SELECT * 
+FROM table_name.tablename
+WHERE field =value
+)
+ 
+To update table from innodb to myisam
+USE database;
+ALTER TABLE tablename ENGINE=MYISAM;
+
+//To make first letter caps
+select concat(ucase(substr(field,1,1)),substr(field,2))
+from tablename
+
+
+//To group concat for maximum length
+set session group_concat_max_len = 10000000;
+Select group_concat(field) 
+from tablename
+
+//To group concat and order by particular field
+Select group_concat(field order by field asc) 
+from tablename
+
+//To check salary more than10000
+select field1, sum(field2) as salary
+from tablename
+group by field1
+having salary>10000
+
+// adding single quote and splitting the string which group of string stored in single column without quotes
+select REPLACE(quote(field1), ',', '\',\'') 
+from gablename 
+where condition
+
+//Check database size 
+SELECT table_schema "DB Name",ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB" 
+FROM information_schema.tables 
+GROUP BY table_schema
+
+//To find missing ID in table
+SELECT a.id+1 AS start, MIN(b.id) - 1 AS end
+FROM tablename AS a, tablename AS b
+WHERE a.id < b.id
+GROUP BY a.id
+HAVING start < MIN(b.id)
+
+//To delete records ranging from 1 to 100
+SELECT * 
+FROM `tablename`
+where field <=100  and field >=1
+
+or
+
+SELECT * 
+FROM `tablename`
+where field between 1 and 100
+
+//Update between tables
+update tablename2
+join tablename1 on tablename2.field1 =tablename1.field1
+set tablename2.field2 =tablename1.field2
+
+//To update third table joining to table content
+UPDATE table2 t2
+JOIN table1 t1 ON t2.field=t1.field
+JOIN table3 t3 ON t1.field=t3.field
+SET    t2.fieldname = t3.fieldname
+where condition
+
+
+//To get small letter in field
+SELECT * FROM tablename WHERE BINARY field = BINARY "string"
+
+
+
+//Sql to dumb one database from bulk of database 
+sed -n '/^-- Current Database: `databasename`/,/^-- Current Database: `/p' databasename.sql > output_databasename.sql
+
+
+MYSQL reconfigure
+sudo dpkg-reconfigure mysql-server-5.7
